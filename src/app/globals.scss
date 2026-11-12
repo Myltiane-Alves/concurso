@@ -1,0 +1,212 @@
+$primary: #4f46e5;
+$bg: #f5f6fa;
+$border: #e2e4ec;
+$text: #1f2430;
+$danger: #dc2626;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: $bg;
+  color: $text;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+// ---------- Auth ----------
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+  }
+
+  input {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font: inherit;
+
+    &:focus {
+      outline: 2px solid rgba($primary, 0.35);
+      border-color: $primary;
+    }
+  }
+
+  button[type="submit"] {
+    padding: 0.7rem;
+    border: 0;
+    border-radius: 8px;
+    background: $primary;
+    color: #fff;
+    font-weight: 600;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.field-error,
+.form-error {
+  color: $danger;
+  font-size: 0.8rem;
+}
+
+.form-error {
+  margin: 0;
+}
+
+.auth-link {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0;
+
+  a {
+    color: $primary;
+  }
+}
+
+// ---------- App shell ----------
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid $border;
+  padding: 1rem 0.75rem;
+  flex-shrink: 0;
+
+  .sidebar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.5rem 0.75rem 1rem;
+    color: $primary;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    color: $text;
+    text-decoration: none;
+    font-size: 0.92rem;
+
+    &:hover {
+      background: $bg;
+    }
+
+    &.active {
+      background: rgba($primary, 0.1);
+      color: $primary;
+      font-weight: 600;
+    }
+  }
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid $border;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+}
+
+.app-content {
+  padding: 1.5rem;
+}
+
+// ---------- Responsivo ----------
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid $border;
+    padding: 0.5rem;
+
+    .sidebar-brand {
+      padding-bottom: 0.5rem;
+    }
+
+    nav {
+      flex-direction: row;
+      overflow-x: auto;
+    }
+
+    a {
+      white-space: nowrap;
+
+      span {
+        display: none;
+      }
+
+      &.active span {
+        display: inline;
+      }
+    }
+  }
+}
