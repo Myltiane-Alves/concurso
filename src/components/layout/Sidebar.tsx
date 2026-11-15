@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Trophy,
@@ -14,6 +12,8 @@ import {
   StickyNote,
   BarChart3,
 } from "lucide-react";
+import { useRoute } from "@/lib/hash-router";
+import { NavLink } from "@/components/NavLink";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,21 +29,18 @@ const items = [
 ];
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const { path } = useRoute();
+  const current = path === "/" ? "/dashboard" : path;
 
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">StudyConcursos</div>
       <nav>
         {items.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={pathname.startsWith(href) ? "active" : undefined}
-          >
+          <NavLink key={href} to={href} className={current.startsWith(href) ? "active" : undefined}>
             <Icon size={18} />
             <span>{label}</span>
-          </Link>
+          </NavLink>
         ))}
       </nav>
     </aside>

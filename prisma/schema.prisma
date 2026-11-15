@@ -16,6 +16,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   exams        Exam[]
+  plans        StudyPlan[]
+  activities   StudyActivity[]
+  sessions     StudySession[]
+  questions    QuestionRecord[]
+  reviews      Review[]
+  errorNotes   ErrorNote[]
+  studyNotes   StudyNote[]
 }
 
 model Exam {
@@ -44,6 +51,13 @@ model Subject {
   updatedAt DateTime @updatedAt
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   topics    Topic[]
+  planItems  StudyPlanItem[]
+  activities StudyActivity[]
+  sessions   StudySession[]
+  questions  QuestionRecord[]
+  reviews    Review[]
+  errorNotes ErrorNote[]
+  studyNotes StudyNote[]
 
   @@index([examId])
 }
@@ -71,7 +85,201 @@ model Topic {
   subject  Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   parent   Topic?  @relation("TopicTree", fields: [parentId], references: [id], onDelete: Cascade)
   children Topic[] @relation("TopicTree")
+  sessions StudySession[]
+  questions QuestionRecord[]
+  reviews   Review[]
+  errorNotes ErrorNote[]
+  studyNotes StudyNote[]
 
   @@index([subjectId])
   @@index([parentId])
+}
+
+model StudyPlan {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  isActive  Boolean  @default(false)
+  rounds    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      StudyPlanItem[]
+  activities StudyActivity[]
+
+  @@index([userId])
+}
+
+model StudyPlanItem {
+  id          String   @id @default(cuid())
+  planId      String
+  subjectId   String
+  minutes     Int
+  position    Int
+  doneInRound Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan    StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  subject Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sessions StudySession[]
+
+  @@index([planId])
+  @@index([subjectId])
+}
+
+model StudyActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  planId    String?
+  subjectId String?
+  title     String
+  date      DateTime
+  minutes   Int
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan    StudyPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  subject Subject?   @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+}
+
+enum SessionStatus {
+  RUNNING
+  PAUSED
+  FINISHED
+}
+
+model StudySession {
+  id                 String        @id @default(cuid())
+  userId             String
+  subjectId          String?
+  topicId            String?
+  planItemId         String?
+  status             SessionStatus @default(RUNNING)
+  startedAt          DateTime
+  endedAt            DateTime?
+  lastResumedAt      DateTime?
+  accumulatedSeconds Int           @default(0)
+  totalSeconds       Int?
+  notes              String?
+  difficulties       String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject  Subject?       @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  topic    Topic?         @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  planItem StudyPlanItem? @relation(fields: [planItemId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@index([userId, status])
+}
+
+model QuestionRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  subjectId String?
+  topicId   String?
+  board     String?
+  source    String?
+  date      DateTime
+  total     Int
+  correct   Int
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([subjectId])
+}
+
+enum ReviewStatus {
+  PENDING
+  DONE
+}
+
+enum ReviewDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Review {
+  id             String            @id @default(cuid())
+  userId         String
+  subjectId      String?
+  topicId        String?
+  title          String
+  dueDate        DateTime
+  intervalDays   Int?
+  status         ReviewStatus      @default(PENDING)
+  completedAt    DateTime?
+  difficulty     ReviewDifficulty?
+  notes          String?
+  postponedCount Int               @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status, dueDate])
+  @@index([topicId])
+}
+
+enum ErrorCategory {
+  NOT_KNOWN
+  FORGOT
+  CONFUSION
+  CARELESS
+  MISREAD
+}
+
+model ErrorNote {
+  id            String        @id @default(cuid())
+  userId        String
+  subjectId     String?
+  topicId       String?
+  category      ErrorCategory
+  statement     String
+  wrongAnswer   String?
+  correctAnswer String?
+  explanation   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([topicId])
+}
+
+model StudyNote {
+  id        String   @id @default(cuid())
+  userId    String
+  subjectId String?
+  topicId   String?
+  title     String
+  content   String
+  links     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, updatedAt])
 }

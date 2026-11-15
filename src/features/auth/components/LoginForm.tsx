@@ -24,7 +24,7 @@ export function LoginForm() {
       setError("E-mail ou senha incorretos");
       return;
     }
-    router.replace("/dashboard");
+    router.replace("/app");
     router.refresh();
   }
 

@@ -33,7 +33,7 @@ export function RegisterForm() {
     }
 
     await signIn("credentials", { email, password, redirect: false });
-    router.replace("/dashboard");
+    router.replace("/app");
     router.refresh();
   }
 
