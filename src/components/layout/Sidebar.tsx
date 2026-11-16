@@ -12,6 +12,7 @@ import {
   StickyNote,
   BarChart3,
   Layers,
+  Target,
 } from "lucide-react";
 import { useRoute } from "@/lib/hash-router";
 import { NavLink } from "@/components/NavLink";
@@ -22,6 +23,7 @@ const items = [
   { href: "/disciplinas", label: "Disciplinas", icon: BookOpen },
   { href: "/comparar", label: "Comparar concursos", icon: Layers },
   { href: "/planejamento", label: "Planejamento", icon: CalendarDays },
+  { href: "/metas", label: "Metas", icon: Target },
   { href: "/estudar", label: "Estudar", icon: Timer },
   { href: "/questoes", label: "Questões", icon: ListChecks },
   { href: "/revisoes", label: "Revisões", icon: Repeat },

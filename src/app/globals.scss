@@ -576,3 +576,17 @@ button.tab { background: none; border: 0; border-bottom: 2px solid transparent; 
 }
 
 @media (max-width: 700px) { .compare-cols { grid-template-columns: 1fr; } }
+
+// ---------- Metas ----------
+.goal-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  border-bottom: 1px solid $border; padding: 0.6rem 0;
+  &:last-child { border-bottom: 0; }
+  &.is-paused { opacity: 0.55; }
+  .goal-main { flex: 1; min-width: 0; .bar-row { margin: 0; } }
+}
+.goal-status {
+  display: block; margin-top: 0.3rem; font-size: 0.78rem; color: #6b7280;
+  &.done { color: #047857; font-weight: 600; }
+  &.late { color: #b45309; }
+}

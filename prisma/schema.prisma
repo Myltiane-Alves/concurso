@@ -23,6 +23,7 @@ model User {
   reviews      Review[]
   errorNotes   ErrorNote[]
   studyNotes   StudyNote[]
+  goals        Goal[]
 }
 
 model Exam {
@@ -59,6 +60,7 @@ model Subject {
   reviews    Review[]
   errorNotes ErrorNote[]
   studyNotes StudyNote[]
+  goals      Goal[]
 
   @@index([examId])
   @@index([equivalenceId])
@@ -285,4 +287,32 @@ model StudyNote {
   topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
 
   @@index([userId, updatedAt])
+}
+
+enum GoalType {
+  STUDY_TIME
+  QUESTIONS
+}
+
+enum GoalPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model Goal {
+  id        String     @id @default(cuid())
+  userId    String
+  subjectId String?
+  type      GoalType
+  period    GoalPeriod
+  target    Int
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, active])
 }

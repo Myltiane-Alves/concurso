@@ -5,6 +5,7 @@ import { Async } from "@/components/Async";
 import { NavLink } from "@/components/NavLink";
 import { ProgressBar } from "@/components/ProgressBar";
 import { queries } from "@/lib/queries";
+import { GoalProgress } from "@/features/goals/components/GoalProgress";
 
 export function DashboardScreen() {
   const query = useQuery(queries.dashboard());
@@ -47,6 +48,20 @@ export function DashboardScreen() {
             <div className="card">
               <h2>Progresso geral dos conteúdos</h2>
               <ProgressBar done={s.topicsDone} total={s.topics} />
+            </div>
+
+            <div className="card">
+              <div className="page-header">
+                <h2>Metas</h2>
+                <NavLink to="/metas">Gerenciar metas</NavLink>
+              </div>
+              {s.goals.length === 0 ? (
+                <p className="muted">
+                  Você ainda não definiu metas. <NavLink to="/metas">Criar uma meta</NavLink>
+                </p>
+              ) : (
+                s.goals.map((g) => <GoalProgress key={g.id} goal={g} />)
+              )}
             </div>
           </>
         )}

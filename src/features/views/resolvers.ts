@@ -20,11 +20,20 @@ import { getStats, listPaged, listRecent } from "@/features/questions/services/q
 import { listCompleted, listPending } from "@/features/reviews/services/review.service";
 import { listErrors } from "@/features/errors/services/error-note.service";
 import { getComparison } from "@/features/compare/services/compare.service";
+import { listWithProgress } from "@/features/goals/services/goal.service";
 import { listNotes } from "@/features/notes/services/note.service";
 
 const PERIODS = [7, 30, 90];
 
-export const dashboardView = (userId: string) => getSummary(userId);
+export async function dashboardView(userId: string) {
+  const [summary, goals] = await Promise.all([getSummary(userId), listWithProgress(userId, true)]);
+  return { ...summary, goals };
+}
+
+export async function goalsView(userId: string) {
+  const [goals, subjects] = await Promise.all([listWithProgress(userId), listSubjectOptions(userId)]);
+  return { goals, subjects };
+}
 
 export const examsView = (userId: string) => listExams(userId);
 
@@ -199,6 +208,8 @@ export async function resolveView(name: string[], userId: string, params: URLSea
   switch (view) {
     case "dashboard":
       return dashboardView(userId);
+    case "goals":
+      return goalsView(userId);
     case "exams":
       return examsView(userId);
     case "exam":

@@ -13,6 +13,7 @@ import { ErrorsScreen } from "@/screens/ErrorsScreen";
 import { NotesScreen } from "@/screens/NotesScreen";
 import { ExamDetailScreen } from "@/screens/ExamDetailScreen";
 import { ExamsScreen } from "@/screens/ExamsScreen";
+import { GoalsScreen } from "@/screens/GoalsScreen";
 import { PerformanceScreen } from "@/screens/PerformanceScreen";
 import { PlanningScreen } from "@/screens/PlanningScreen";
 import { QuestionHistoryScreen } from "@/screens/QuestionHistoryScreen";
@@ -54,6 +55,8 @@ export function AppRouter() {
       return id ? <ExamDetailScreen id={id} /> : <ExamsScreen />;
     case "disciplinas":
       return id ? <SubjectDetailScreen id={id} /> : <SubjectsScreen />;
+    case "metas":
+      return <GoalsScreen />;
     case "comparar":
       return <CompareScreen ids={params.get("ids") ?? undefined} />;
     case "planejamento":

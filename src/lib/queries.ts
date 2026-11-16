@@ -12,6 +12,11 @@ export const queries = {
       queryKey: ["view", "dashboard"],
       queryFn: () => apiGet<Data<typeof R.dashboardView>>("dashboard"),
     }),
+  goals: () =>
+    queryOptions({
+      queryKey: ["view", "goals"],
+      queryFn: () => apiGet<Data<typeof R.goalsView>>("goals"),
+    }),
   exams: () =>
     queryOptions({
       queryKey: ["view", "exams"],
