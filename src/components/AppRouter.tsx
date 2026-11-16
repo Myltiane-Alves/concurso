@@ -6,6 +6,7 @@ import { ComingSoon } from "@/components/ComingSoon";
 import { useRoute } from "@/lib/hash-router";
 import { queries } from "@/lib/queries";
 import { AgendaScreen } from "@/screens/AgendaScreen";
+import { CompareScreen } from "@/screens/CompareScreen";
 import { CycleScreen } from "@/screens/CycleScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { ErrorsScreen } from "@/screens/ErrorsScreen";
@@ -53,6 +54,8 @@ export function AppRouter() {
       return id ? <ExamDetailScreen id={id} /> : <ExamsScreen />;
     case "disciplinas":
       return id ? <SubjectDetailScreen id={id} /> : <SubjectsScreen />;
+    case "comparar":
+      return <CompareScreen ids={params.get("ids") ?? undefined} />;
     case "planejamento":
       if (id === "ciclo") return <CycleScreen plano={params.get("plano") ?? undefined} />;
       if (id === "agenda") return <AgendaScreen semana={params.get("semana") ?? undefined} />;

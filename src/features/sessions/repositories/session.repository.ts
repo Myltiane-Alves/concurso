@@ -67,3 +67,58 @@ export function markTopicInProgress(userId: string, topicId: string) {
     data: { status: "IN_PROGRESS" },
   });
 }
+
+export function listManual(userId: string, take = 30) {
+  return prisma.studySession.findMany({
+    where: { userId, status: "FINISHED", manual: true },
+    orderBy: { endedAt: "desc" },
+    take,
+    include: withRelations,
+  });
+}
+
+type ManualData = {
+  subjectId: string;
+  topicId?: string;
+  startedAt: Date;
+  endedAt: Date;
+  seconds: number;
+  notes?: string;
+};
+
+export function createManual(userId: string, data: ManualData) {
+  return prisma.studySession.create({
+    data: {
+      userId,
+      subjectId: data.subjectId,
+      topicId: data.topicId,
+      status: "FINISHED",
+      manual: true,
+      startedAt: data.startedAt,
+      endedAt: data.endedAt,
+      accumulatedSeconds: data.seconds,
+      totalSeconds: data.seconds,
+      notes: data.notes,
+    },
+  });
+}
+
+/** Só registros manuais podem ser alterados: as sessões do cronômetro ficam preservadas (RN003). */
+export function updateManual(userId: string, id: string, data: ManualData) {
+  return prisma.studySession.updateMany({
+    where: { id, userId, manual: true, status: "FINISHED" },
+    data: {
+      subjectId: data.subjectId,
+      topicId: data.topicId ?? null,
+      startedAt: data.startedAt,
+      endedAt: data.endedAt,
+      accumulatedSeconds: data.seconds,
+      totalSeconds: data.seconds,
+      notes: data.notes ?? null,
+    },
+  });
+}
+
+export function deleteManual(userId: string, id: string) {
+  return prisma.studySession.deleteMany({ where: { id, userId, manual: true } });
+}

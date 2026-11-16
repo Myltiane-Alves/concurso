@@ -30,6 +30,7 @@ export function ExamDetailScreen({ id }: { id: string }) {
                 {[exam.organ, exam.board, exam.role].filter(Boolean).join(" · ") || "Sem detalhes"}
                 {" · "}Prova: {formatDate(exam.examDate)}
               </p>
+              <NavLink to={`/comparar?ids=${exam.id}`}>Comparar com outros concursos</NavLink>
             </div>
 
             <div className="card">

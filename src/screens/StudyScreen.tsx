@@ -17,6 +17,7 @@ import {
   resumeSessionAction,
   startSessionAction,
 } from "@/features/sessions/actions";
+import { ManualHoursSection } from "@/features/sessions/components/ManualHoursSection";
 import { SessionTimer } from "@/features/sessions/components/SessionTimer";
 import { StartSessionForm } from "@/features/sessions/components/StartSessionForm";
 
@@ -25,7 +26,7 @@ export function StudyScreen() {
 
   return (
     <Async query={query}>
-      {({ active, history, todaySeconds, subjects, nextBlock, serverNow }, q) => {
+      {({ active, history, manualEntries, todaySeconds, subjects, nextBlock, today, serverNow }, q) => {
         // Diferença entre o relógio do servidor e o do navegador no momento da busca.
         const clockOffsetMs = serverNow - q.dataUpdatedAt;
 
@@ -127,6 +128,8 @@ export function StudyScreen() {
               </>
             )}
 
+            <ManualHoursSection subjects={subjects} entries={manualEntries} today={today} />
+
             <div className="card">
               <h2>Últimas sessões</h2>
               {history.length === 0 ? (
@@ -135,7 +138,10 @@ export function StudyScreen() {
                 history.map((s) => (
                   <div key={s.id} className="history-item">
                     <div className="history-main">
-                      <strong>{s.subject?.name ?? "Disciplina removida"}</strong>
+                      <strong>
+                        {s.subject?.name ?? "Disciplina removida"}
+                        {s.manual && <span className="badge-manual">Manual</span>}
+                      </strong>
                       <span className="muted small">
                         {s.topic ? `${s.topic.code ? `${s.topic.code} ` : ""}${s.topic.title} · ` : ""}
                         {s.endedAt ? dateTimeLabel(s.endedAt) : ""}

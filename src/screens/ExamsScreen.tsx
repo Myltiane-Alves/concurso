@@ -16,6 +16,9 @@ export function ExamsScreen() {
     <>
       <div className="page-header">
         <h1>Concursos</h1>
+        <NavLink to="/comparar" className="btn-small">
+          Comparar concursos
+        </NavLink>
       </div>
 
       <div className="card">

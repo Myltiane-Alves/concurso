@@ -7,10 +7,15 @@ import { findItem } from "@/features/plans/repositories/plan.repository";
 import { toggleItem } from "@/features/plans/services/plan.service";
 import { createAutoForTopic } from "@/features/reviews/services/review.service";
 import * as repo from "../repositories/session.repository";
-import type { FinishSessionInput, StartSessionInput } from "../schemas/session.schema";
+import type {
+  FinishSessionInput,
+  ManualSessionInput,
+  StartSessionInput,
+} from "../schemas/session.schema";
 
 export const getActive = repo.findActive;
 export const listFinished = repo.listFinished;
+export const listManual = repo.listManual;
 
 type Elapsable = {
   status: SessionStatus;
@@ -116,4 +121,42 @@ export async function finishSession(userId: string, input: FinishSessionInput) {
 
 export async function discardSession(userId: string, id: string) {
   await repo.deleteActive(userId, id);
+}
+
+/** Registra (ou edita) horas estudadas sem usar o cronômetro. O tempo conta no dia escolhido. */
+export async function saveManualSession(userId: string, input: ManualSessionInput) {
+  if (input.date > todayISO()) throw new AppError("A data não pode ser futura", 400);
+  if (!(await findOwnedSubject(userId, input.subjectId))) {
+    throw new AppError("Disciplina não encontrada", 404);
+  }
+  if (input.topicId && !(await findInSubject(input.topicId, input.subjectId))) {
+    throw new AppError("O conteúdo não pertence à disciplina escolhida", 400);
+  }
+
+  // O registro é posicionado ao meio-dia (Brasília) do dia escolhido, para contar no dia certo.
+  const noon = new Date(`${input.date}T12:00:00-03:00`);
+  const endedAt = input.date === todayISO() && noon > new Date() ? new Date() : noon;
+  const data = {
+    subjectId: input.subjectId,
+    topicId: input.topicId,
+    startedAt: new Date(endedAt.getTime() - input.seconds * 1000),
+    endedAt,
+    seconds: input.seconds,
+    notes: input.notes,
+  };
+
+  if (input.id) {
+    const result = await repo.updateManual(userId, input.id, data);
+    if (result.count === 0) {
+      throw new AppError("Só é possível editar horas adicionadas manualmente", 404);
+    }
+  } else {
+    await repo.createManual(userId, data);
+  }
+
+  if (input.topicId) await repo.markTopicInProgress(userId, input.topicId);
+}
+
+export function deleteManualSession(userId: string, id: string) {
+  return repo.deleteManual(userId, id);
 }

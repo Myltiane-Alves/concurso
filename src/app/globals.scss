@@ -545,3 +545,34 @@ button.tab { background: none; border: 0; border-bottom: 2px solid transparent; 
   button { border: 0; background: none; padding: 0.35rem 0.5rem; border-radius: 6px; display: inline-flex; color: $text; &:hover { background: #fff; } }
   .toolbar-toggle { margin-left: auto; font-size: 0.8rem; font-weight: 600; color: $primary; &.active { background: #fff; } }
 }
+
+// ---------- Horas manuais ----------
+.badge-manual {
+  margin-left: 0.5rem; padding: 0.05rem 0.5rem; border-radius: 99px;
+  background: #eef0f4; color: #4b5563; font-size: 0.68rem; font-weight: 600;
+}
+.edit-box { border: 1px dashed $border; border-radius: 10px; padding: 1rem; margin: 0.5rem 0; display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+
+// ---------- Comparar concursos ----------
+.exam-picker { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+
+.compare-group { border: 1px solid $border; border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.75rem; }
+.compare-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.6rem; strong { flex: 1; min-width: 160px; } }
+
+.compare-cols { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 0.6rem; width: 100%; }
+.compare-cell {
+  display: flex; flex-direction: column; gap: 0.35rem; background: $bg; border-radius: 8px; padding: 0.6rem 0.75rem;
+  &.empty { background: transparent; border: 1px dashed $border; }
+}
+.compare-exam { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: #6b7280; }
+.compare-member { display: flex; flex-direction: column; }
+.compare-foot { margin: 0.6rem 0 0; }
+
+.badge-kind {
+  padding: 0.15rem 0.65rem; border-radius: 99px; font-size: 0.72rem; font-weight: 600;
+  &.confirmed { background: #d1fae5; color: #065f46; }
+  &.exact { background: #dbeafe; color: #1e40af; }
+  &.similar { background: #fef3c7; color: #92400e; }
+}
+
+@media (max-width: 700px) { .compare-cols { grid-template-columns: 1fr; } }

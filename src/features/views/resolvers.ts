@@ -9,11 +9,17 @@ import {
 } from "@/features/subjects/repositories/subject.repository";
 import { getActivePlan, getPlan, listPlans } from "@/features/plans/services/plan.service";
 import { countOverdue, listBetween, listDay } from "@/features/agenda/services/activity.service";
-import { getActive, getTodaySeconds, listFinished } from "@/features/sessions/services/session.service";
+import {
+  getActive,
+  getTodaySeconds,
+  listFinished,
+  listManual,
+} from "@/features/sessions/services/session.service";
 import { getPerformance, listDifficulties } from "@/features/performance/services/performance.service";
 import { getStats, listPaged, listRecent } from "@/features/questions/services/question.service";
 import { listCompleted, listPending } from "@/features/reviews/services/review.service";
 import { listErrors } from "@/features/errors/services/error-note.service";
+import { getComparison } from "@/features/compare/services/compare.service";
 import { listNotes } from "@/features/notes/services/note.service";
 
 const PERIODS = [7, 30, 90];
@@ -87,9 +93,10 @@ export async function agendaView(userId: string, semana?: string) {
 }
 
 export async function studyView(userId: string) {
-  const [active, history, todaySeconds, subjects, plan] = await Promise.all([
+  const [active, history, manualEntries, todaySeconds, subjects, plan] = await Promise.all([
     getActive(userId),
     listFinished(userId, 10),
+    listManual(userId, 30),
     getTodaySeconds(userId),
     listSubjectsWithTopics(userId),
     getActivePlan(userId),
@@ -100,7 +107,16 @@ export async function studyView(userId: string) {
     ? { id: next.id, minutes: next.minutes, subject: { id: next.subject.id, name: next.subject.name } }
     : null;
 
-  return { active, history, todaySeconds, subjects, nextBlock, serverNow: Date.now() };
+  return {
+    active,
+    history,
+    manualEntries,
+    todaySeconds,
+    subjects,
+    nextBlock,
+    today: todayISO(),
+    serverNow: Date.now(),
+  };
 }
 
 export async function performanceView(userId: string, periodo?: string) {
@@ -154,6 +170,18 @@ export async function notesView(userId: string) {
   return { items, subjects };
 }
 
+export async function compareView(userId: string, idsParam?: string) {
+  const exams = (await listExams(userId)).map((e) => ({
+    id: e.id,
+    name: e.name,
+    subjects: e._count.subjects,
+  }));
+  const valid = new Set(exams.map((e) => e.id));
+  const selectedIds = [...new Set((idsParam ?? "").split(",").filter((id) => valid.has(id)))].slice(0, 4);
+  const comparison = selectedIds.length >= 2 ? await getComparison(userId, selectedIds) : null;
+  return { exams, selectedIds, comparison };
+}
+
 const HISTORY_PAGE_SIZE = 20;
 
 export async function questionHistoryView(userId: string, disciplina?: string, pagina?: string) {
@@ -197,6 +225,8 @@ export async function resolveView(name: string[], userId: string, params: URLSea
       return errorsView(userId);
     case "notes":
       return notesView(userId);
+    case "compare":
+      return compareView(userId, params.get("ids") || undefined);
     case "question-history":
       return questionHistoryView(
         userId,

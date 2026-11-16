@@ -81,6 +81,12 @@ export const queries = {
       queryKey: ["view", "notes"],
       queryFn: () => apiGet<Data<typeof R.notesView>>("notes"),
     }),
+  compare: (ids?: string) =>
+    queryOptions({
+      queryKey: ["view", "compare", ids ?? ""],
+      queryFn: () => apiGet<Data<typeof R.compareView>>(`compare?ids=${q(ids)}`),
+      placeholderData: keepPreviousData,
+    }),
   questionHistory: (disciplina?: string, pagina?: string) =>
     queryOptions({
       queryKey: ["view", "question-history", disciplina ?? "", pagina ?? ""],
