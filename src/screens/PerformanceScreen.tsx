@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { dateTimeLabel, dayMonthLabel } from "@/lib/dates";
 import { formatDuration } from "@/lib/format";
 import { queries } from "@/lib/queries";
+import { PerformanceTabs } from "@/features/performance/components/PerformanceTabs";
 import { DailyHoursChart } from "@/features/performance/components/DailyHoursChart";
 import { AccuracyBySubject } from "@/features/questions/components/AccuracyBySubject";
 
@@ -20,6 +21,7 @@ export function PerformanceScreen({ periodo }: { periodo?: string }) {
       <div className="page-header">
         <h1>Desempenho</h1>
       </div>
+      <PerformanceTabs active="period" />
 
       <Async query={query}>
         {({ days, perf, subjects, difficulties, questions }) => {

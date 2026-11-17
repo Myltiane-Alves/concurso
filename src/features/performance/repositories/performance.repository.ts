@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { dayRange } from "@/lib/dates";
+import { dayRange, isoToDate } from "@/lib/dates";
 
 export function listFinishedSince(userId: string, startISO: string) {
   return prisma.studySession.findMany({
@@ -25,5 +25,12 @@ export function listDifficulties(userId: string, take: number) {
       subject: { select: { name: true } },
       topic: { select: { code: true, title: true } },
     },
+  });
+}
+
+export function listQuestionRecordsSince(userId: string, startISO: string) {
+  return prisma.questionRecord.findMany({
+    where: { userId, date: { gte: isoToDate(startISO) } },
+    select: { date: true, total: true, correct: true },
   });
 }

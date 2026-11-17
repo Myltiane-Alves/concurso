@@ -65,6 +65,12 @@ export const queries = {
       queryFn: () => apiGet<Data<typeof R.performanceView>>(`performance?periodo=${q(periodo)}`),
       placeholderData: keepPreviousData,
     }),
+  monthlyPerformance: (mes?: string) =>
+    queryOptions({
+      queryKey: ["view", "monthly-performance", mes ?? ""],
+      queryFn: () => apiGet<Data<typeof R.monthlyPerformanceView>>(`monthly-performance?mes=${q(mes)}`),
+      placeholderData: keepPreviousData,
+    }),
   questions: (periodo?: string) =>
     queryOptions({
       queryKey: ["view", "questions", periodo ?? ""],

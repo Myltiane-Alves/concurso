@@ -15,7 +15,11 @@ import {
   listFinished,
   listManual,
 } from "@/features/sessions/services/session.service";
-import { getPerformance, listDifficulties } from "@/features/performance/services/performance.service";
+import {
+  getMonthly,
+  getPerformance,
+  listDifficulties,
+} from "@/features/performance/services/performance.service";
 import { getStats, listPaged, listRecent } from "@/features/questions/services/question.service";
 import { listCompleted, listPending } from "@/features/reviews/services/review.service";
 import { listErrors } from "@/features/errors/services/error-note.service";
@@ -150,6 +154,8 @@ export async function performanceView(userId: string, periodo?: string) {
   };
 }
 
+export const monthlyPerformanceView = (userId: string, mes?: string) => getMonthly(userId, mes);
+
 export async function questionsView(userId: string, periodo?: string) {
   const days = periodo === "todos" ? null : PERIODS.includes(Number(periodo)) ? Number(periodo) : 30;
   const [stats, subjects, recent] = await Promise.all([
@@ -228,6 +234,8 @@ export async function resolveView(name: string[], userId: string, params: URLSea
       return studyView(userId);
     case "performance":
       return performanceView(userId, params.get("periodo") || undefined);
+    case "monthly-performance":
+      return monthlyPerformanceView(userId, params.get("mes") || undefined);
     case "questions":
       return questionsView(userId, params.get("periodo") || undefined);
     case "reviews":

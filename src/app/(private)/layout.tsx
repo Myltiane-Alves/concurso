@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { Providers } from "@/components/Providers";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 export default async function PrivateLayout({ children }: { children: React.ReactNode }) {
@@ -20,11 +21,14 @@ export default async function PrivateLayout({ children }: { children: React.Reac
         <div className="app-main">
           <header className="app-header">
             <span>Olá, {session.user.name}</span>
-            <form action={logout}>
-              <button type="submit" className="btn-ghost">
-                <LogOut size={16} /> Sair
-              </button>
-            </form>
+            <div className="header-actions">
+              <ThemeToggle />
+              <form action={logout}>
+                <button type="submit" className="btn-ghost">
+                  <LogOut size={16} /> Sair
+                </button>
+              </form>
+            </div>
           </header>
           <section className="app-content">{children}</section>
         </div>

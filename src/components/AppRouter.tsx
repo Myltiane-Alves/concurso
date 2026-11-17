@@ -14,6 +14,7 @@ import { NotesScreen } from "@/screens/NotesScreen";
 import { ExamDetailScreen } from "@/screens/ExamDetailScreen";
 import { ExamsScreen } from "@/screens/ExamsScreen";
 import { GoalsScreen } from "@/screens/GoalsScreen";
+import { MonthlyPerformanceScreen } from "@/screens/MonthlyPerformanceScreen";
 import { PerformanceScreen } from "@/screens/PerformanceScreen";
 import { PlanningScreen } from "@/screens/PlanningScreen";
 import { QuestionHistoryScreen } from "@/screens/QuestionHistoryScreen";
@@ -75,6 +76,7 @@ export function AppRouter() {
         <QuestionsScreen periodo={params.get("periodo") ?? undefined} />
       );
     case "desempenho":
+      if (id === "mensal") return <MonthlyPerformanceScreen mes={params.get("mes") ?? undefined} />;
       return <PerformanceScreen periodo={params.get("periodo") ?? undefined} />;
     case "revisoes":
       return <ReviewsScreen />;

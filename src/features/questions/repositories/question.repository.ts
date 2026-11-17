@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
+function dateFilter(since?: Date, until?: Date) {
+  if (!since && !until) return {};
+  return { date: { ...(since ? { gte: since } : {}), ...(until ? { lte: until } : {}) } };
+}
+
 const withRelations = {
   subject: { select: { name: true } },
   topic: { select: { code: true, title: true } },
@@ -50,18 +55,18 @@ export function deleteRecord(userId: string, id: string) {
   return prisma.questionRecord.deleteMany({ where: { id, userId } });
 }
 
-export async function sums(userId: string, since?: Date) {
+export async function sums(userId: string, since?: Date, until?: Date) {
   const result = await prisma.questionRecord.aggregate({
-    where: { userId, ...(since ? { date: { gte: since } } : {}) },
+    where: { userId, ...dateFilter(since, until) },
     _sum: { total: true, correct: true },
   });
   return { total: result._sum.total ?? 0, correct: result._sum.correct ?? 0 };
 }
 
-export async function sumsBySubject(userId: string, since?: Date) {
+export async function sumsBySubject(userId: string, since?: Date, until?: Date) {
   const groups = await prisma.questionRecord.groupBy({
     by: ["subjectId"],
-    where: { userId, ...(since ? { date: { gte: since } } : {}) },
+    where: { userId, ...dateFilter(since, until) },
     _sum: { total: true, correct: true },
   });
 

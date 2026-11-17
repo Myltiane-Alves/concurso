@@ -51,3 +51,23 @@ export async function getStats(userId: string, periodDays: number | null) {
       .sort((a, b) => a.percent - b.percent),
   };
 }
+
+/** Estatísticas de um intervalo de datas de calendário (inclusive nas pontas). */
+export async function getStatsBetween(userId: string, startISO: string, endISO: string) {
+  const since = isoToDate(startISO);
+  const until = isoToDate(endISO);
+  const [sum, groups] = await Promise.all([
+    repo.sums(userId, since, until),
+    repo.sumsBySubject(userId, since, until),
+  ]);
+
+  return {
+    total: sum.total,
+    correct: sum.correct,
+    wrong: sum.total - sum.correct,
+    percent: percent(sum.correct, sum.total),
+    bySubject: groups
+      .map((g) => ({ ...g, percent: percent(g.correct, g.total) }))
+      .sort((a, b) => a.percent - b.percent),
+  };
+}
