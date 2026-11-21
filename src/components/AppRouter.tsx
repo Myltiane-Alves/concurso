@@ -8,6 +8,7 @@ import { queries } from "@/lib/queries";
 import { AgendaScreen } from "@/screens/AgendaScreen";
 import { CompareScreen } from "@/screens/CompareScreen";
 import { CycleScreen } from "@/screens/CycleScreen";
+import { DailyPerformanceScreen } from "@/screens/DailyPerformanceScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { ErrorsScreen } from "@/screens/ErrorsScreen";
 import { NotesScreen } from "@/screens/NotesScreen";
@@ -68,14 +69,12 @@ export function AppRouter() {
       return <StudyScreen />;
     case "questoes":
       return id === "historico" ? (
-        <QuestionHistoryScreen
-          disciplina={params.get("disciplina") ?? undefined}
-          pagina={params.get("pagina") ?? undefined}
-        />
+        <QuestionHistoryScreen />
       ) : (
         <QuestionsScreen periodo={params.get("periodo") ?? undefined} />
       );
     case "desempenho":
+      if (id === "diario") return <DailyPerformanceScreen mes={params.get("mes") ?? undefined} />;
       if (id === "mensal") return <MonthlyPerformanceScreen mes={params.get("mes") ?? undefined} />;
       return <PerformanceScreen periodo={params.get("periodo") ?? undefined} />;
     case "revisoes":

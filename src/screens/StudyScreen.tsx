@@ -7,7 +7,6 @@ import { Async } from "@/components/Async";
 import { DeleteButton } from "@/components/DeleteButton";
 import { MutateForm } from "@/components/MutateForm";
 import { NavLink } from "@/components/NavLink";
-import { dateTimeLabel } from "@/lib/dates";
 import { formatDuration, formatMinutes } from "@/lib/format";
 import { queries } from "@/lib/queries";
 import {
@@ -18,6 +17,7 @@ import {
   startSessionAction,
 } from "@/features/sessions/actions";
 import { ManualHoursSection } from "@/features/sessions/components/ManualHoursSection";
+import { SessionHistoryTable } from "@/features/sessions/components/SessionHistoryTable";
 import { SessionTimer } from "@/features/sessions/components/SessionTimer";
 import { StartSessionForm } from "@/features/sessions/components/StartSessionForm";
 
@@ -132,26 +132,7 @@ export function StudyScreen() {
 
             <div className="card">
               <h2>Últimas sessões</h2>
-              {history.length === 0 ? (
-                <p className="muted">Nenhuma sessão finalizada ainda.</p>
-              ) : (
-                history.map((s) => (
-                  <div key={s.id} className="history-item">
-                    <div className="history-main">
-                      <strong>
-                        {s.subject?.name ?? "Disciplina removida"}
-                        {s.manual && <span className="badge-manual">Manual</span>}
-                      </strong>
-                      <span className="muted small">
-                        {s.topic ? `${s.topic.code ? `${s.topic.code} ` : ""}${s.topic.title} · ` : ""}
-                        {s.endedAt ? dateTimeLabel(s.endedAt) : ""}
-                      </span>
-                      {s.difficulties && <span className="muted small">Dificuldade: {s.difficulties}</span>}
-                    </div>
-                    <span className="history-time">{formatDuration(s.totalSeconds ?? 0)}</span>
-                  </div>
-                ))
-              )}
+              <SessionHistoryTable sessions={history} />
             </div>
           </>
         );

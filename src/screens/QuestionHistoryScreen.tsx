@@ -1,14 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Async } from "@/components/Async";
 import { NavLink } from "@/components/NavLink";
-import { navigate } from "@/lib/hash-router";
 import { queries } from "@/lib/queries";
-import { RecordItem } from "@/features/questions/components/RecordItem";
+import { RecordsTable } from "@/features/questions/components/RecordsTable";
 
-export function QuestionHistoryScreen({ disciplina, pagina }: { disciplina?: string; pagina?: string }) {
-  const query = useQuery(queries.questionHistory(disciplina, pagina));
+export function QuestionHistoryScreen() {
+  const query = useQuery(queries.questionHistory());
+  const [subjectId, setSubjectId] = useState("");
 
   return (
     <>
@@ -16,32 +17,18 @@ export function QuestionHistoryScreen({ disciplina, pagina }: { disciplina?: str
         <NavLink to="/questoes">← Questões</NavLink>
       </p>
 
+      <div className="page-header">
+        <h1>Histórico de questões</h1>
+      </div>
+
       <Async query={query}>
-        {({ items, total, page, pageSize, subjects, disciplina: selected }) => {
-          const totalPages = Math.max(1, Math.ceil(total / pageSize));
-          const link = (p: number) => {
-            const qs = new URLSearchParams();
-            if (selected) qs.set("disciplina", selected);
-            qs.set("pagina", String(p));
-            return `/questoes/historico?${qs.toString()}`;
-          };
+        {({ items, subjects }) => {
+          const filtered = subjectId ? items.filter((r) => r.subjectId === subjectId) : items;
 
           return (
             <>
-              <div className="page-header">
-                <h1>Histórico de questões</h1>
-                <span className="muted">{total} registro(s)</span>
-              </div>
-
-              <form
-                className="filter-bar"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const value = new FormData(e.currentTarget).get("disciplina");
-                  navigate(value ? `/questoes/historico?disciplina=${value}` : "/questoes/historico");
-                }}
-              >
-                <select name="disciplina" defaultValue={selected}>
+              <div className="filter-bar">
+                <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
                   <option value="">Todas as disciplinas</option>
                   {subjects.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -49,28 +36,11 @@ export function QuestionHistoryScreen({ disciplina, pagina }: { disciplina?: str
                     </option>
                   ))}
                 </select>
-                <button type="submit" className="btn-small">
-                  Filtrar
-                </button>
-              </form>
-
-              <div className="card">
-                {items.length === 0 ? (
-                  <p className="muted">Nenhum registro encontrado.</p>
-                ) : (
-                  items.map((r) => <RecordItem key={r.id} record={r} />)
-                )}
               </div>
 
-              {totalPages > 1 && (
-                <div className="week-nav">
-                  {page > 1 ? <NavLink to={link(page - 1)}>← Anterior</NavLink> : <span />}
-                  <span className="muted">
-                    Página {page} de {totalPages}
-                  </span>
-                  {page < totalPages ? <NavLink to={link(page + 1)}>Próxima →</NavLink> : <span />}
-                </div>
-              )}
+              <div className="card">
+                <RecordsTable records={filtered} />
+              </div>
             </>
           );
         }}

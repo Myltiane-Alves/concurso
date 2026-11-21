@@ -71,6 +71,12 @@ export const queries = {
       queryFn: () => apiGet<Data<typeof R.monthlyPerformanceView>>(`monthly-performance?mes=${q(mes)}`),
       placeholderData: keepPreviousData,
     }),
+  dailyPerformance: (mes?: string) =>
+    queryOptions({
+      queryKey: ["view", "daily-performance", mes ?? ""],
+      queryFn: () => apiGet<Data<typeof R.dailyPerformanceView>>(`daily-performance?mes=${q(mes)}`),
+      placeholderData: keepPreviousData,
+    }),
   questions: (periodo?: string) =>
     queryOptions({
       queryKey: ["view", "questions", periodo ?? ""],
@@ -98,13 +104,9 @@ export const queries = {
       queryFn: () => apiGet<Data<typeof R.compareView>>(`compare?ids=${q(ids)}`),
       placeholderData: keepPreviousData,
     }),
-  questionHistory: (disciplina?: string, pagina?: string) =>
+  questionHistory: () =>
     queryOptions({
-      queryKey: ["view", "question-history", disciplina ?? "", pagina ?? ""],
-      queryFn: () =>
-        apiGet<Data<typeof R.questionHistoryView>>(
-          `question-history?disciplina=${q(disciplina)}&pagina=${q(pagina)}`
-        ),
-      placeholderData: keepPreviousData,
+      queryKey: ["view", "question-history"],
+      queryFn: () => apiGet<Data<typeof R.questionHistoryView>>("question-history"),
     }),
 };

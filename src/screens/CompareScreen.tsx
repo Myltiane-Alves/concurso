@@ -6,7 +6,7 @@ import { Async } from "@/components/Async";
 import { NavLink } from "@/components/NavLink";
 import { navigate } from "@/lib/hash-router";
 import { queries } from "@/lib/queries";
-import { GroupCard } from "@/features/compare/components/GroupCard";
+import { GroupsTable } from "@/features/compare/components/GroupsTable";
 import { UniqueLinker } from "@/features/compare/components/UniqueLinker";
 
 const MAX_EXAMS = 4;
@@ -114,11 +114,11 @@ export function CompareScreen({ ids }: { ids?: string }) {
 
                   <div className="card">
                     <h2>Disciplinas compatíveis ({compatible.length})</h2>
-                    {compatible.length === 0 ? (
-                      <p className="muted">Nenhuma disciplina em comum encontrada pelo nome.</p>
-                    ) : (
-                      compatible.map((g) => <GroupCard key={g.id} group={g} exams={compared} />)
-                    )}
+                    <GroupsTable
+                      groups={compatible}
+                      exams={compared}
+                      emptyMessage="Nenhuma disciplina em comum encontrada pelo nome."
+                    />
                   </div>
 
                   {similar.length > 0 && (
@@ -128,9 +128,7 @@ export function CompareScreen({ ids }: { ids?: string }) {
                         Os nomes são parecidos, mas podem ser matérias diferentes. Confirme as que realmente têm o
                         mesmo conteúdo.
                       </p>
-                      {similar.map((g) => (
-                        <GroupCard key={g.id} group={g} exams={compared} />
-                      ))}
+                      <GroupsTable groups={similar} exams={compared} />
                     </div>
                   )}
 

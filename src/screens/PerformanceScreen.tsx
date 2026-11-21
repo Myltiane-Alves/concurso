@@ -8,6 +8,7 @@ import { dateTimeLabel, dayMonthLabel } from "@/lib/dates";
 import { formatDuration } from "@/lib/format";
 import { queries } from "@/lib/queries";
 import { PerformanceTabs } from "@/features/performance/components/PerformanceTabs";
+import { DifficultiesTable } from "@/features/performance/components/DifficultiesTable";
 import { DailyHoursChart } from "@/features/performance/components/DailyHoursChart";
 import { AccuracyBySubject } from "@/features/questions/components/AccuracyBySubject";
 
@@ -71,7 +72,10 @@ export function PerformanceScreen({ periodo }: { periodo?: string }) {
               </div>
 
               <div className="card">
-                <h2>Tempo estudado por dia</h2>
+                <div className="page-header">
+                  <h2>Tempo estudado por dia</h2>
+                  <NavLink to="/desempenho/diario">Ver dia a dia</NavLink>
+                </div>
                 {perf.totalSeconds === 0 ? (
                   <p className="muted">
                     Nenhuma sessão finalizada neste período. <NavLink to="/estudar">Começar a estudar</NavLink>
@@ -124,22 +128,7 @@ export function PerformanceScreen({ periodo }: { periodo?: string }) {
 
               <div className="card">
                 <h2>Dificuldades registradas</h2>
-                {difficulties.length === 0 ? (
-                  <p className="muted">Nenhuma dificuldade registrada nas sessões ainda.</p>
-                ) : (
-                  difficulties.map((d) => (
-                    <div key={d.id} className="history-item">
-                      <div className="history-main">
-                        <strong>{d.subject?.name ?? "Disciplina removida"}</strong>
-                        <span className="muted small">
-                          {d.topic ? `${d.topic.code ? `${d.topic.code} ` : ""}${d.topic.title} · ` : ""}
-                          {d.endedAt ? dateTimeLabel(d.endedAt) : ""}
-                        </span>
-                        <span>{d.difficulties}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
+                <DifficultiesTable items={difficulties} />
               </div>
 
               <div className="card">

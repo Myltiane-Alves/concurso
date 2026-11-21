@@ -6,7 +6,7 @@ import { NavLink } from "@/components/NavLink";
 import { queries } from "@/lib/queries";
 import { AccuracyBySubject } from "@/features/questions/components/AccuracyBySubject";
 import { QuestionForm } from "@/features/questions/components/QuestionForm";
-import { RecordItem } from "@/features/questions/components/RecordItem";
+import { RecordsTable } from "@/features/questions/components/RecordsTable";
 
 const PERIODS = [7, 30, 90];
 
@@ -82,11 +82,7 @@ export function QuestionsScreen({ periodo }: { periodo?: string }) {
 
             <div className="card">
               <h2>Últimos registros</h2>
-              {recent.length === 0 ? (
-                <p className="muted">Nenhum registro ainda.</p>
-              ) : (
-                recent.map((r) => <RecordItem key={r.id} record={r} />)
-              )}
+              <RecordsTable records={recent} />
             </div>
           </>
         )}

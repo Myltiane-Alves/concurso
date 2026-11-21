@@ -7,6 +7,8 @@ import { dayMonthLabel } from "@/lib/dates";
 import { formatDuration } from "@/lib/format";
 import { queries } from "@/lib/queries";
 import { DailyHoursChart } from "@/features/performance/components/DailyHoursChart";
+import { MonthNav } from "@/features/performance/components/MonthNav";
+import { MonthsTable } from "@/features/performance/components/MonthsTable";
 import { PerformanceTabs } from "@/features/performance/components/PerformanceTabs";
 import { addMonths, monthLabel } from "@/features/performance/utils/monthly";
 import { AccuracyBySubject } from "@/features/questions/components/AccuracyBySubject";
@@ -54,15 +56,7 @@ export function MonthlyPerformanceScreen({ mes }: { mes?: string }) {
 
           return (
             <>
-              <div className="week-nav">
-                <NavLink to={`/desempenho/mensal?mes=${prevMonth}`}>← {monthLabel(prevMonth, "short")}</NavLink>
-                <strong className="month-title">{monthLabel(month)}</strong>
-                {nextMonth ? (
-                  <NavLink to={`/desempenho/mensal?mes=${nextMonth}`}>{monthLabel(nextMonth, "short")} →</NavLink>
-                ) : (
-                  <span />
-                )}
-              </div>
+              <MonthNav basePath="/desempenho/mensal" month={month} prevMonth={prevMonth} nextMonth={nextMonth} />
 
               <div className="stats">
                 <div className="card stat">
@@ -97,7 +91,10 @@ export function MonthlyPerformanceScreen({ mes }: { mes?: string }) {
               </div>
 
               <div className="card">
-                <h2>Tempo estudado por dia</h2>
+                <div className="page-header">
+                  <h2>Tempo estudado por dia</h2>
+                  <NavLink to={`/desempenho/diario?mes=${month}`}>Ver dia a dia</NavLink>
+                </div>
                 {perf.totalSeconds === 0 ? (
                   <p className="muted">Nenhuma sessão finalizada neste mês.</p>
                 ) : (
@@ -145,29 +142,8 @@ export function MonthlyPerformanceScreen({ mes }: { mes?: string }) {
                 <h2>Últimos 12 meses</h2>
                 <DailyHoursChart data={overviewData} />
 
-                <div className="month-table">
-                  <div className="month-row head">
-                    <span>Mês</span>
-                    <span>Tempo</span>
-                    <span>Dias</span>
-                    <span className="col-questions">Questões</span>
-                  </div>
-                  {[...overview].reverse().map((m) => (
-                    <NavLink
-                      key={m.month}
-                      to={`/desempenho/mensal?mes=${m.month === thisMonth ? thisMonth : m.month}`}
-                      className={`month-row ${m.month === month ? "is-selected" : ""}`}
-                    >
-                      <span>{monthLabel(m.month)}</span>
-                      <span>{m.seconds > 0 ? formatDuration(m.seconds) : "—"}</span>
-                      <span>{m.studiedDays > 0 ? m.studiedDays : "—"}</span>
-                      <span className="col-questions">
-                        {m.questions > 0 ? `${m.questions} · ${m.percent}%` : "—"}
-                      </span>
-                    </NavLink>
-                  ))}
-                </div>
-                <p className="muted small">Clique em um mês para ver o detalhe. O gráfico mostra horas por mês.</p>
+                <MonthsTable overview={overview} selected={month} />
+                <p className="muted small">Clique no nome de um mês para ver o detalhe. O gráfico mostra horas por mês.</p>
               </div>
             </>
           );

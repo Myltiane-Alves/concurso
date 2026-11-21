@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Async } from "@/components/Async";
 import { dateToISO } from "@/lib/dates";
 import { queries } from "@/lib/queries";
-import { CompletedReviewItem } from "@/features/reviews/components/CompletedReviewItem";
+import { CompletedReviewsTable } from "@/features/reviews/components/CompletedReviewsTable";
+import { PendingReviewsTable } from "@/features/reviews/components/PendingReviewsTable";
 import { ReviewForm } from "@/features/reviews/components/ReviewForm";
-import { ReviewItem, type DueKind } from "@/features/reviews/components/ReviewItem";
 
 export function ReviewsScreen() {
   const query = useQuery(queries.reviews());
@@ -21,32 +21,23 @@ export function ReviewsScreen() {
 
       <Async query={query}>
         {({ today, pending, completed, subjects }) => {
-          const kindOf = (due: Date): DueKind => {
-            const iso = dateToISO(due);
-            return iso < today ? "overdue" : iso === today ? "today" : "upcoming";
-          };
-
-          const groups: { kind: DueKind; title: string }[] = [
-            { kind: "overdue", title: "Atrasadas" },
-            { kind: "today", title: "Para hoje" },
-            { kind: "upcoming", title: "Próximas" },
-          ];
-          const count = (kind: DueKind) => pending.filter((r) => kindOf(r.dueDate) === kind).length;
+          const count = (test: (iso: string) => boolean) =>
+            pending.filter((r) => test(dateToISO(r.dueDate))).length;
 
           return (
             <>
               <div className="stats">
                 <div className="card stat">
                   <span className="muted">Atrasadas</span>
-                  <strong>{count("overdue")}</strong>
+                  <strong>{count((d) => d < today)}</strong>
                 </div>
                 <div className="card stat">
                   <span className="muted">Para hoje</span>
-                  <strong>{count("today")}</strong>
+                  <strong>{count((d) => d === today)}</strong>
                 </div>
                 <div className="card stat">
                   <span className="muted">Próximas</span>
-                  <strong>{count("upcoming")}</strong>
+                  <strong>{count((d) => d > today)}</strong>
                 </div>
                 <div className="card stat">
                   <span className="muted">Concluídas (recentes)</span>
@@ -80,37 +71,20 @@ export function ReviewsScreen() {
                 </button>
               </div>
 
-              {tab === "pending" ? (
-                pending.length === 0 ? (
-                  <div className="card">
-                    <p className="muted">Nenhuma revisão pendente.</p>
-                  </div>
+              <div className="card">
+                {tab === "pending" ? (
+                  <>
+                    <h2>Revisões pendentes</h2>
+                    <p className="muted small">Clique na seta da coluna &quot;Concluir&quot; para registrar uma revisão.</p>
+                    <PendingReviewsTable reviews={pending} today={today} />
+                  </>
                 ) : (
-                  groups.map(({ kind, title }) => {
-                    const list = pending.filter((r) => kindOf(r.dueDate) === kind);
-                    if (list.length === 0) return null;
-                    return (
-                      <div key={kind} className="card">
-                        <h2>
-                          {title} ({list.length})
-                        </h2>
-                        {list.map((r) => (
-                          <ReviewItem key={r.id} kind={kind} review={r} />
-                        ))}
-                      </div>
-                    );
-                  })
-                )
-              ) : (
-                <div className="card">
-                  <h2>Histórico de revisões</h2>
-                  {completed.length === 0 ? (
-                    <p className="muted">Nenhuma revisão concluída ainda.</p>
-                  ) : (
-                    completed.map((r) => <CompletedReviewItem key={r.id} review={r} />)
-                  )}
-                </div>
-              )}
+                  <>
+                    <h2>Histórico de revisões</h2>
+                    <CompletedReviewsTable reviews={completed} />
+                  </>
+                )}
+              </div>
             </>
           );
         }}

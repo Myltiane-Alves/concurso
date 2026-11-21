@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { dayRange, isoToDate } from "@/lib/dates";
 
-export function listFinishedSince(userId: string, startISO: string) {
+export function listFinishedSince(userId: string, startISO: string, endISO?: string) {
   return prisma.studySession.findMany({
-    where: { userId, status: "FINISHED", endedAt: { gte: dayRange(startISO).start } },
+    where: { userId, status: "FINISHED", endedAt: { gte: dayRange(startISO).start, ...(endISO ? { lte: dayRange(endISO).end } : {}) },
+    },
     select: {
       endedAt: true,
       totalSeconds: true,

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
 import "./globals.scss";
 
 export const metadata: Metadata = {

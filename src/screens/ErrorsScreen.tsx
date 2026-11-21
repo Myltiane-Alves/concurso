@@ -6,7 +6,7 @@ import { Async } from "@/components/Async";
 import { NavLink } from "@/components/NavLink";
 import { queries } from "@/lib/queries";
 import { ErrorForm } from "@/features/errors/components/ErrorForm";
-import { ErrorItem } from "@/features/errors/components/ErrorItem";
+import { ErrorsTable } from "@/features/errors/components/ErrorsTable";
 import { ERROR_CATEGORIES } from "@/features/errors/utils/labels";
 
 function top<T>(items: T[], keyOf: (item: T) => string | null, labelOf: (item: T) => string, n = 5) {
@@ -139,13 +139,7 @@ export function ErrorsScreen() {
                   Erros registrados ({filtered.length}
                   {filtered.length !== items.length ? ` de ${items.length}` : ""})
                 </h2>
-                {filtered.length === 0 ? (
-                  <p className="muted">
-                    {items.length === 0 ? "Nenhum erro registrado ainda." : "Nenhum erro com esses filtros."}
-                  </p>
-                ) : (
-                  filtered.map((n) => <ErrorItem key={n.id} note={n} />)
-                )}
+                <ErrorsTable notes={filtered} />
               </div>
             </>
           );

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Pencil } from "lucide-react";
+import { Column } from "primereact/column";
+import { AppDataTable } from "@/components/AppDataTable";
 import { DeleteButton } from "@/components/DeleteButton";
 import { isoToDate, toLocalISO } from "@/lib/dates";
 import { formatDate, formatDuration } from "@/lib/format";
@@ -15,6 +17,18 @@ type Entry = ManualEntry & {
   topic: { code: string | null; title: string } | null;
 };
 
+type Row = {
+  id: string;
+  ts: number;
+  dateLabel: string;
+  subject: string;
+  topic: string;
+  seconds: number;
+  duration: string;
+  notes: string;
+  entry: Entry;
+};
+
 export function ManualHoursSection({
   subjects,
   entries,
@@ -25,6 +39,23 @@ export function ManualHoursSection({
   today: string;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const editing = entries.find((e) => e.id === editingId);
+
+  const rows = useMemo<Row[]>(
+    () =>
+      entries.map((e) => ({
+        id: e.id,
+        ts: e.endedAt ? new Date(e.endedAt).getTime() : 0,
+        dateLabel: e.endedAt ? formatDate(isoToDate(toLocalISO(e.endedAt))) : "",
+        subject: e.subject?.name ?? "Disciplina removida",
+        topic: e.topic ? `${e.topic.code ? `${e.topic.code} ` : ""}${e.topic.title}` : "",
+        seconds: e.totalSeconds ?? 0,
+        duration: formatDuration(e.totalSeconds ?? 0),
+        notes: e.notes ?? "",
+        entry: e,
+      })),
+    [entries]
+  );
 
   return (
     <>
@@ -40,46 +71,55 @@ export function ManualHoursSection({
       {entries.length > 0 && (
         <div className="card">
           <h2>Horas adicionadas manualmente</h2>
-          {entries.map((e) =>
-            editingId === e.id ? (
-              <div key={e.id} className="edit-box">
-                <ManualSessionForm
-                  subjects={subjects}
-                  today={today}
-                  entry={e}
-                  onDone={() => setEditingId(null)}
-                />
-                <button type="button" className="btn-small" onClick={() => setEditingId(null)}>
-                  Cancelar
-                </button>
-              </div>
-            ) : (
-              <div key={e.id} className="history-item">
-                <div className="history-main">
-                  <strong>{e.subject?.name ?? "Disciplina removida"}</strong>
-                  <span className="muted small">
-                    {e.endedAt ? formatDate(isoToDate(toLocalISO(e.endedAt))) : ""}
-                    {e.topic ? ` · ${e.topic.code ? `${e.topic.code} ` : ""}${e.topic.title}` : ""}
-                  </span>
-                  {e.notes && <span className="muted small">{e.notes}</span>}
-                </div>
-                <span className="history-time">{formatDuration(e.totalSeconds ?? 0)}</span>
-                <button
-                  type="button"
-                  className="btn-icon neutral"
-                  title="Editar"
-                  onClick={() => setEditingId(e.id)}
-                >
-                  <Pencil size={16} />
-                </button>
-                <DeleteButton
-                  action={deleteManualSessionAction}
-                  fields={{ id: e.id }}
-                  message="Excluir estas horas?"
-                />
-              </div>
-            )
+
+          {editing && (
+            <div className="edit-box">
+              <strong>Editar registro</strong>
+              <ManualSessionForm
+                key={editing.id}
+                subjects={subjects}
+                today={today}
+                entry={editing}
+                onDone={() => setEditingId(null)}
+              />
+              <button type="button" className="btn-small" onClick={() => setEditingId(null)}>
+                Cancelar
+              </button>
+            </div>
           )}
+
+          <AppDataTable
+            value={rows}
+            sortField="ts"
+            globalFields={["dateLabel", "subject", "topic", "duration", "notes"]}
+          >
+            <Column field="dateLabel" header="Data" sortable sortField="ts" />
+            <Column field="subject" header="Disciplina" sortable />
+            <Column field="topic" header="Conteúdo" sortable />
+            <Column field="duration" header="Tempo" sortable sortField="seconds" />
+            <Column field="notes" header="Observações" />
+            <Column
+              header="Ações"
+              style={{ width: "6.5rem" }}
+              body={(r: Row) => (
+                <div className="row-actions">
+                  <button
+                    type="button"
+                    className="btn-icon neutral"
+                    title="Editar"
+                    onClick={() => setEditingId(r.id)}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <DeleteButton
+                    action={deleteManualSessionAction}
+                    fields={{ id: r.id }}
+                    message="Excluir estas horas?"
+                  />
+                </div>
+              )}
+            />
+          </AppDataTable>
         </div>
       )}
     </>

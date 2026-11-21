@@ -2,6 +2,7 @@ import { addDays, todayISO } from "@/lib/dates";
 import { getStatsBetween } from "@/features/questions/services/question.service";
 import * as repo from "../repositories/performance.repository";
 import { aggregate } from "../utils/aggregate";
+import { aggregateDaily } from "../utils/daily";
 import { addMonths, buildYearOverview, isValidMonth, monthRange } from "../utils/monthly";
 
 export const MAX_PERIOD_DAYS = 90;
@@ -47,5 +48,33 @@ export async function getMonthly(userId: string, monthParam?: string) {
     questions,
     previousQuestions: { total: prevQuestions.total, percent: prevQuestions.percent },
     overview: buildYearOverview(sessions, records, thisMonth),
+  };
+}
+
+/** Horas estudadas em cada dia do mês, com o detalhe por disciplina. */
+export async function getDaily(userId: string, monthParam?: string) {
+  const today = todayISO();
+  const thisMonth = today.slice(0, 7);
+  const month = monthParam && isValidMonth(monthParam) && monthParam <= thisMonth ? monthParam : thisMonth;
+  const range = monthRange(month, today);
+
+  const sessions = await repo.listFinishedSince(userId, range.start, range.effectiveEnd);
+  const days = aggregateDaily(sessions, range.start, range.effectiveEnd);
+
+  const totalSeconds = days.reduce((sum, d) => sum + d.seconds, 0);
+  const studiedDays = days.filter((d) => d.seconds > 0).length;
+  const best = days.reduce((top, d) => (d.seconds > top.seconds ? d : top), days[0]);
+
+  return {
+    month,
+    thisMonth,
+    prevMonth: addMonths(month, -1),
+    nextMonth: month < thisMonth ? addMonths(month, 1) : null,
+    days: [...days].reverse(), // dia mais recente primeiro
+    totalSeconds,
+    studiedDays,
+    periodDays: days.length,
+    avgSecondsPerStudiedDay: studiedDays === 0 ? 0 : Math.round(totalSeconds / studiedDays),
+    best: best && best.seconds > 0 ? { date: best.date, seconds: best.seconds } : null,
   };
 }

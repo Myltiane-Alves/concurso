@@ -16,6 +16,7 @@ import {
   listManual,
 } from "@/features/sessions/services/session.service";
 import {
+  getDaily,
   getMonthly,
   getPerformance,
   listDifficulties,
@@ -108,8 +109,8 @@ export async function agendaView(userId: string, semana?: string) {
 export async function studyView(userId: string) {
   const [active, history, manualEntries, todaySeconds, subjects, plan] = await Promise.all([
     getActive(userId),
-    listFinished(userId, 10),
-    listManual(userId, 30),
+    listFinished(userId, 500),
+    listManual(userId, 500),
     getTodaySeconds(userId),
     listSubjectsWithTopics(userId),
     getActivePlan(userId),
@@ -156,12 +157,14 @@ export async function performanceView(userId: string, periodo?: string) {
 
 export const monthlyPerformanceView = (userId: string, mes?: string) => getMonthly(userId, mes);
 
+export const dailyPerformanceView = (userId: string, mes?: string) => getDaily(userId, mes);
+
 export async function questionsView(userId: string, periodo?: string) {
   const days = periodo === "todos" ? null : PERIODS.includes(Number(periodo)) ? Number(periodo) : 30;
   const [stats, subjects, recent] = await Promise.all([
     getStats(userId, days),
     listSubjectsWithTopics(userId),
-    listRecent(userId, 5),
+    listRecent(userId, 100),
   ]);
   return { days, today: todayISO(), stats, subjects, recent };
 }
@@ -197,15 +200,12 @@ export async function compareView(userId: string, idsParam?: string) {
   return { exams, selectedIds, comparison };
 }
 
-const HISTORY_PAGE_SIZE = 20;
-
-export async function questionHistoryView(userId: string, disciplina?: string, pagina?: string) {
-  const page = Math.max(1, Number.parseInt(pagina ?? "1", 10) || 1);
+export async function questionHistoryView(userId: string) {
   const [{ items, total }, subjects] = await Promise.all([
-    listPaged(userId, { subjectId: disciplina || undefined, page, pageSize: HISTORY_PAGE_SIZE }),
+    listPaged(userId, { page: 1, pageSize: 1000 }),
     listSubjectOptions(userId),
   ]);
-  return { items, total, page, pageSize: HISTORY_PAGE_SIZE, subjects, disciplina: disciplina ?? "" };
+  return { items, total, subjects };
 }
 
 export async function resolveView(name: string[], userId: string, params: URLSearchParams) {
@@ -236,6 +236,8 @@ export async function resolveView(name: string[], userId: string, params: URLSea
       return performanceView(userId, params.get("periodo") || undefined);
     case "monthly-performance":
       return monthlyPerformanceView(userId, params.get("mes") || undefined);
+    case "daily-performance":
+      return dailyPerformanceView(userId, params.get("mes") || undefined);
     case "questions":
       return questionsView(userId, params.get("periodo") || undefined);
     case "reviews":
@@ -247,11 +249,7 @@ export async function resolveView(name: string[], userId: string, params: URLSea
     case "compare":
       return compareView(userId, params.get("ids") || undefined);
     case "question-history":
-      return questionHistoryView(
-        userId,
-        params.get("disciplina") || undefined,
-        params.get("pagina") || undefined
-      );
+      return questionHistoryView(userId);
     default:
       throw new AppError("Tela não encontrada", 404);
   }
